@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNncmFkaWVudCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+📈</text></svg>">
     
     <link rel="stylesheet" href="../../assets/css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Estilos específicos do app de cotações */
         .quotes-grid {
@@ -29,10 +30,12 @@
             transition: transform 0.2s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
         
         .quote-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .quote-card.loading {
@@ -104,6 +107,18 @@
             color: #999;
             text-align: right;
             margin-top: 10px;
+        }
+        
+        .quote-chart-hint {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
         }
         
         .refresh-btn {
@@ -191,6 +206,176 @@
             border-left: 4px solid rgba(255,255,255,0.3);
         }
         
+        /* Modal para gráficos */
+        .chart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .chart-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .chart-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .chart-header {
+            padding: 25px 30px 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .chart-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chart-title h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .chart-title .icon {
+            font-size: 2rem;
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .chart-controls {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .period-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .period-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .period-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .period-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .chart-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .chart-container {
+            padding: 30px;
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-info {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         @media (max-width: 768px) {
             .quotes-grid {
                 grid-template-columns: 1fr;
@@ -199,6 +384,38 @@
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            
+            .chart-modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .chart-header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .chart-controls {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .period-buttons {
+                justify-content: center;
+            }
+            
+            .chart-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .chart-container {
+                padding: 15px;
+                height: 300px;
             }
         }
     </style>
@@ -231,7 +448,8 @@
             <!-- Moedas e Criptomoedas -->
             <div class="section-title">💱 Moedas & Criptomoedas</div>
             <div class="quotes-grid">
-                <div class="quote-card" id="usd-card">
+                <div class="quote-card" id="usd-card" onclick="openChart('usd')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">💵</span>
@@ -244,7 +462,8 @@
                     <div class="quote-updated" id="usd-updated">--</div>
                 </div>
                 
-                <div class="quote-card" id="btc-card">
+                <div class="quote-card" id="btc-card" onclick="openChart('btc')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">₿</span>
@@ -257,7 +476,8 @@
                     <div class="quote-updated" id="btc-updated">--</div>
                 </div>
                 
-                <div class="quote-card" id="eth-card">
+                <div class="quote-card" id="eth-card" onclick="openChart('eth')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">Ξ</span>
@@ -274,7 +494,8 @@
             <!-- Commodities -->
             <div class="section-title">🥇 Commodities</div>
             <div class="quotes-grid">
-                <div class="quote-card" id="gold-card">
+                <div class="quote-card" id="gold-card" onclick="openChart('gold')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">🥇</span>
@@ -287,7 +508,8 @@
                     <div class="quote-updated" id="gold-updated">--</div>
                 </div>
                 
-                <div class="quote-card" id="corn-card">
+                <div class="quote-card" id="corn-card" onclick="openChart('corn')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">🌽</span>
@@ -304,7 +526,8 @@
             <!-- Pecuária -->
             <div class="section-title">🐂 Pecuária</div>
             <div class="quotes-grid">
-                <div class="quote-card" id="cattle-card">
+                <div class="quote-card" id="cattle-card" onclick="openChart('cattle')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">🐂</span>
@@ -317,7 +540,8 @@
                     <div class="quote-updated" id="cattle-updated">--</div>
                 </div>
                 
-                <div class="quote-card" id="lean-cattle-card">
+                <div class="quote-card" id="lean-cattle-card" onclick="openChart('lean-cattle')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">🐄</span>
@@ -330,7 +554,8 @@
                     <div class="quote-updated" id="lean-cattle-updated">--</div>
                 </div>
                 
-                <div class="quote-card" id="calf-card">
+                <div class="quote-card" id="calf-card" onclick="openChart('calf')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
                             <span class="quote-icon">🐮</span>
@@ -350,10 +575,62 @@
         </div>
     </div>
 
+    <!-- Modal do Gráfico -->
+    <div class="chart-modal" id="chartModal">
+        <div class="chart-modal-content">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <span class="icon" id="chartIcon">📈</span>
+                    <div>
+                        <h2 id="chartTitleText">Variação</h2>
+                        <div id="chartSubtitle" style="font-size: 0.9rem; opacity: 0.9;">Análise histórica</div>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeChart()">✕</button>
+            </div>
+            
+            <div class="chart-controls">
+                <div class="period-buttons">
+                    <button class="period-btn" data-period="1D" onclick="changePeriod('1D')">1D</button>
+                    <button class="period-btn" data-period="1S" onclick="changePeriod('1S')">1S</button>
+                    <button class="period-btn" data-period="1M" onclick="changePeriod('1M')">1M</button>
+                    <button class="period-btn active" data-period="3M" onclick="changePeriod('3M')">3M</button>
+                </div>
+                
+                <div class="chart-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Atual</div>
+                        <div class="stat-value" id="statCurrent">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Máximo</div>
+                        <div class="stat-value" id="statMax">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Mínimo</div>
+                        <div class="stat-value" id="statMin">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Variação</div>
+                        <div class="stat-value" id="statChange">--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+            
+            <div class="chart-info">
+                📊 Dados simulados para demonstração • Atualizado em tempo real
+            </div>
+        </div>
+    </div>
+
     <script src="../../assets/js/navigation.js"></script>
     <script>
         // Sistema de debug
-        let debugMode = true; // Mude para false em produção
+        let debugMode = true;
         
         function log(message, data = null) {
             if (debugMode) {
@@ -370,14 +647,14 @@
         
         // Dados base para cotações (valores realistas que variam)
         const baseData = {
-            'usd': { base: 5.25, volatility: 0.05 },
-            'btc': { base: 380000, volatility: 0.03 },
-            'eth': { base: 18500, volatility: 0.04 },
-            'gold': { base: 325.50, volatility: 0.02 },
-            'corn': { base: 78.90, volatility: 0.03 },
-            'cattle': { base: 285.40, volatility: 0.025 },
-            'lean-cattle': { base: 245.60, volatility: 0.025 },
-            'calf': { base: 1850.00, volatility: 0.03 }
+            'usd': { base: 5.25, volatility: 0.05, name: 'Dólar Americano (USD/BRL)', icon: '💵', unit: '' },
+            'btc': { base: 380000, volatility: 0.03, name: 'Bitcoin (BTC/BRL)', icon: '₿', unit: '' },
+            'eth': { base: 18500, volatility: 0.04, name: 'Ethereum (ETH/BRL)', icon: 'Ξ', unit: '' },
+            'gold': { base: 325.50, volatility: 0.02, name: 'Ouro 24k (g)', icon: '🥇', unit: '/g' },
+            'corn': { base: 78.90, volatility: 0.03, name: 'Milho (sc)', icon: '🌽', unit: '/sc' },
+            'cattle': { base: 285.40, volatility: 0.025, name: 'Boi Gordo (@)', icon: '🐂', unit: '/@' },
+            'lean-cattle': { base: 245.60, volatility: 0.025, name: 'Boi Magro (@)', icon: '🐄', unit: '/@' },
+            'calf': { base: 1850.00, volatility: 0.03, name: 'Bezerro (cab)', icon: '🐮', unit: '/cab' }
         };
         
         // Configuração das cotações
@@ -417,16 +694,244 @@
         };
         
         let autoRefreshInterval = null;
-        let lastValues = {}; // Para calcular variações
+        let lastValues = {};
+        let currentChart = null;
+        let currentSymbol = null;
+        let currentPeriod = '3M';
+        
+        // Função para gerar dados históricos realistas
+        function generateHistoricalData(symbol, period) {
+            const config = baseData[symbol];
+            const now = new Date();
+            let dataPoints = [];
+            let intervals, stepMs;
+            
+            // Define número de pontos e intervalo baseado no período
+            switch(period) {
+                case '1D':
+                    intervals = 24; // 24 horas
+                    stepMs = 60 * 60 * 1000; // 1 hora
+                    break;
+                case '1S':
+                    intervals = 7; // 7 dias
+                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    break;
+                case '1M':
+                    intervals = 30; // 30 dias
+                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    break;
+                case '3M':
+                default:
+                    intervals = 90; // 90 dias
+                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    break;
+            }
+            
+            // Gera pontos históricos com tendência e volatilidade
+            let currentValue = config.base;
+            const trendFactor = (Math.random() - 0.5) * 0.3; // Tendência geral (-15% a +15%)
+            
+            for (let i = intervals; i >= 0; i--) {
+                const date = new Date(now.getTime() - (i * stepMs));
+                
+                // Aplica tendência progressiva
+                const progressFactor = (intervals - i) / intervals;
+                const trendValue = currentValue * (1 + (trendFactor * progressFactor));
+                
+                // Adiciona volatilidade diária
+                const randomFactor = (Math.random() - 0.5) * config.volatility * 2;
+                const finalValue = trendValue * (1 + randomFactor);
+                
+                dataPoints.push({
+                    date: date,
+                    value: finalValue
+                });
+                
+                currentValue = finalValue;
+            }
+            
+            return dataPoints;
+        }
+        
+        // Função para abrir o modal do gráfico
+        function openChart(symbol) {
+            log(`Abrindo gráfico para ${symbol}`);
+            
+            currentSymbol = symbol;
+            const config = baseData[symbol];
+            const modal = document.getElementById('chartModal');
+            
+            // Atualiza título e ícone
+            document.getElementById('chartIcon').textContent = config.icon;
+            document.getElementById('chartTitleText').textContent = `Variação ${config.name}`;
+            document.getElementById('chartSubtitle').textContent = 'Análise histórica de preços';
+            
+            // Mostra modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Gera gráfico após um pequeno delay para garantir que o modal esteja visível
+            setTimeout(() => {
+                updateChart();
+            }, 100);
+        }
+        
+        // Função para fechar o modal
+        function closeChart() {
+            const modal = document.getElementById('chartModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Destroy chart
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+        
+        // Função para mudar período
+        function changePeriod(period) {
+            currentPeriod = period;
+            
+            // Atualiza botões
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-period="${period}"]`).classList.add('active');
+            
+            // Atualiza gráfico
+            updateChart();
+        }
+        
+        // Função para atualizar o gráfico
+        function updateChart() {
+            if (!currentSymbol) return;
+            
+            log(`Atualizando gráfico: ${currentSymbol} - ${currentPeriod}`);
+            
+            const historicalData = generateHistoricalData(currentSymbol, currentPeriod);
+            const config = baseData[currentSymbol];
+            const quoteConfig = quotes[currentSymbol];
+            
+            // Calcula estatísticas
+            const values = historicalData.map(d => d.value);
+            const current = values[values.length - 1];
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+            const first = values[0];
+            const change = ((current - first) / first) * 100;
+            
+            // Atualiza estatísticas na interface
+            document.getElementById('statCurrent').textContent = quoteConfig.formatter(current) + quoteConfig.unit;
+            document.getElementById('statMax').textContent = quoteConfig.formatter(max) + quoteConfig.unit;
+            document.getElementById('statMin').textContent = quoteConfig.formatter(min) + quoteConfig.unit;
+            
+            const changeElement = document.getElementById('statChange');
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            changeElement.style.color = change >= 0 ? '#28a745' : '#dc3545';
+            
+            // Destrói gráfico anterior se existir
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            // Configura dados para Chart.js
+            const chartData = {
+                labels: historicalData.map(d => {
+                    if (currentPeriod === '1D') {
+                        return d.date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        return d.date.toLocaleDateString('pt-BR', { 
+                            day: '2-digit', 
+                            month: '2-digit' 
+                        });
+                    }
+                }),
+                datasets: [{
+                    label: config.name,
+                    data: values,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#667eea',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
+            };
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#667eea',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return quoteConfig.formatter(context.parsed.y) + quoteConfig.unit;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            maxTicksLimit: 8
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            callback: function(value) {
+                                return quoteConfig.formatter(value);
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Cria novo gráfico
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            });
+            
+            log('Gráfico atualizado com sucesso');
+        }
         
         // Função para tentar buscar dados reais (com fallback)
         async function tryFetchRealData(symbol) {
             try {
                 log(`Tentando buscar dados reais para ${symbol}`);
                 
-                // Tenta diferentes APIs com CORS habilitado
                 if (symbol === 'usd') {
-                    // Tenta a API do Banco Central (pode não ter CORS)
                     const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
                     if (response.ok) {
                         const data = await response.json();
@@ -434,7 +939,7 @@
                             log(`Dados reais obtidos para USD: ${data.rates.BRL}`);
                             return {
                                 value: data.rates.BRL,
-                                change: (Math.random() - 0.5) * 2, // Variação simulada
+                                change: (Math.random() - 0.5) * 2,
                                 timestamp: new Date().toLocaleTimeString('pt-BR'),
                                 source: 'real'
                             };
@@ -443,7 +948,6 @@
                 }
                 
                 if (symbol === 'btc' || symbol === 'eth') {
-                    // Tenta CoinGecko com proxy CORS
                     const coinMap = { btc: 'bitcoin', eth: 'ethereum' };
                     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinMap[symbol]}&vs_currencies=brl&include_24hr_change=true`;
                     
@@ -479,20 +983,16 @@
             const config = baseData[symbol];
             const now = Date.now();
             
-            // Usa seed baseado no tempo para variação consistente mas dinâmica
-            const timeSeed = Math.floor(now / 30000); // Muda a cada 30 segundos
+            const timeSeed = Math.floor(now / 30000);
             const random1 = ((timeSeed * 9301 + 49297) % 233280) / 233280;
             const random2 = ((timeSeed * 9301 + 49297 + symbol.length) % 233280) / 233280;
             
-            // Calcula variação baseada na volatilidade
             const variation = (random1 - 0.5) * config.volatility * 2;
             const currentValue = config.base * (1 + variation);
             
-            // Calcula mudança percentual
             const lastValue = lastValues[symbol] || currentValue;
             const change = lastValue !== currentValue ? ((currentValue - lastValue) / lastValue) * 100 : (random2 - 0.5) * 3;
             
-            // Salva o valor atual para próxima comparação
             lastValues[symbol] = currentValue;
             
             return {
@@ -508,20 +1008,17 @@
             log(`Iniciando busca para ${symbol}`);
             
             try {
-                // Primeiro tenta dados reais
                 const realData = await tryFetchRealData(symbol);
                 if (realData) {
                     log(`Usando dados reais para ${symbol}`);
                     return realData;
                 }
                 
-                // Se falhar, usa dados simulados
                 log(`Usando dados simulados para ${symbol}`);
                 return generateRealisticData(symbol);
                 
             } catch (error) {
                 log(`Erro geral para ${symbol}:`, error.message);
-                // Fallback para dados simulados
                 return generateRealisticData(symbol);
             }
         }
@@ -542,21 +1039,17 @@
             
             const config = quotes[symbol];
             
-            // Atualiza o valor
             valueElement.textContent = config.formatter(data.value) + config.unit;
             
-            // Atualiza a variação
             const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : 'neutral';
             const changeIcon = data.change > 0 ? '▲' : data.change < 0 ? '▼' : '●';
             
             changeElement.className = `quote-change ${changeClass}`;
             changeElement.innerHTML = `${changeIcon} ${Math.abs(data.change).toFixed(2)}%`;
             
-            // Atualiza horário com indicação da fonte
             const sourceIcon = data.source === 'real' ? '🌐' : '📊';
             updatedElement.textContent = `${sourceIcon} ${data.timestamp}`;
             
-            // Remove estados de erro/carregamento
             cardElement.classList.remove('loading', 'error');
             
             log(`Display atualizado para ${symbol}`);
@@ -607,20 +1100,17 @@
             const refreshIcon = document.getElementById('refreshIcon');
             const errorMessage = document.getElementById('errorMessage');
             
-            // Desabilita botão e anima ícone
             if (refreshBtn) refreshBtn.disabled = true;
             if (refreshIcon) refreshIcon.classList.add('spinning');
             if (errorMessage) errorMessage.style.display = 'none';
             
             try {
-                // Atualiza todas as cotações em paralelo
                 const symbols = Object.keys(quotes);
                 log(`Atualizando ${symbols.length} cotações:`, symbols);
                 
                 const promises = symbols.map(symbol => updateQuote(symbol));
                 await Promise.all(promises);
                 
-                // Atualiza timestamp geral
                 const lastUpdateElement = document.getElementById('lastUpdate');
                 if (lastUpdateElement) {
                     lastUpdateElement.textContent = new Date().toLocaleTimeString('pt-BR');
@@ -643,7 +1133,6 @@
                     showNotification('❌ Erro ao atualizar cotações.', 'error');
                 }
             } finally {
-                // Reabilita botão
                 setTimeout(() => {
                     if (refreshBtn) refreshBtn.disabled = false;
                     if (refreshIcon) refreshIcon.classList.remove('spinning');
@@ -656,7 +1145,7 @@
             const checkbox = document.getElementById('autoRefresh');
             
             if (checkbox && checkbox.checked) {
-                autoRefreshInterval = setInterval(refreshAllQuotes, 30000); // 30 segundos
+                autoRefreshInterval = setInterval(refreshAllQuotes, 30000);
                 log('Atualização automática ativada');
                 if (typeof showNotification === 'function') {
                     showNotification('🔄 Atualização automática ativada (30s)', 'info');
@@ -673,17 +1162,29 @@
             }
         }
         
-        // Inicialização
+        // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             log('Página carregada, iniciando cotações');
             
-            // Pequeno delay para garantir que tudo foi renderizado
             setTimeout(() => {
                 refreshAllQuotes();
             }, 500);
         });
         
-        // Cleanup ao sair da página
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('chartModal').classList.contains('active')) {
+                closeChart();
+            }
+        });
+        
+        // Fechar modal clicando fora
+        document.getElementById('chartModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChart();
+            }
+        });
+        
         window.addEventListener('beforeunload', function() {
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
@@ -691,10 +1192,11 @@
             }
         });
         
-        // Expor função para debug no console
+        // Expor funções para debug
         window.debugCotacoes = {
             refreshAll: refreshAllQuotes,
             updateQuote: updateQuote,
+            openChart: openChart,
             toggleDebug: () => {
                 debugMode = !debugMode;
                 console.log('Debug mode:', debugMode);
