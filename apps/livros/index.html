@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compilado de Análise de Livros | Fred's Apps</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Análise Livros">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNncmFkaWVudCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+📚</text></svg>">
+    
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <style>
+        /* Estilos específicos do app de livros */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .add-btn {
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 20px;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .copy-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .copy-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .book-list {
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .book-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .book-info {
+            flex: 1;
+        }
+        
+        .book-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .book-author {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .book-count {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .example-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="app-page">
+    <div class="main-container">
+        <a href="../../" class="back-btn">← Voltar ao Hub</a>
+        
+        <div class="app-container">
+            <div class="header">
+                <h1>📚 Compilado de Análise de Livros</h1>
+                <p>Crie um documento único com múltiplos resumos estruturados</p>
+            </div>
+            
+            <div class="example">
+                <div class="example-title">Como usar:</div>
+                <div class="example-text">
+                    1. Adicione os livros um por um<br>
+                    2. Veja a lista se formando abaixo<br>
+                    3. Copie o prompt completo para gerar o documento compilado
+                </div>
+            </div>
+            
+            <form id="bookForm">
+                <div class="form-group">
+                    <label for="livro">📖 Nome do Livro:</label>
+                    <input type="text" id="livro" placeholder="Ex: Competitive Strategy" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="autor">✍️ Autor:</label>
+                    <input type="text" id="autor" placeholder="Ex: Michael Porter" required>
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addBook()">
+                    ➕ Adicionar à Lista
+                </button>
+            </form>
+            
+            <div id="bookList" class="book-list"></div>
+            
+            <div id="bookCount" class="book-count" style="display: none;"></div>
+            
+            <button type="button" id="copyBtn" class="copy-btn" onclick="copyCompiledPrompt()" disabled>
+                📋 Copiar Prompt do Documento Compilado
+            </button>
+        </div>
+    </div>
+
+    <script src="../../assets/js/navigation.js"></script>
+    <script>
+        // Código específico do app de livros
+        let booksList = [];
+        
+        function addBook() {
+            const livro = document.getElementById('livro').value.trim();
+            const autor = document.getElementById('autor').value.trim();
+            
+            if (!livro || !autor) {
+                showNotification('❌ Por favor, preencha o nome do livro e do autor.', 'error');
+                return;
+            }
+            
+            // Verifica se o livro já foi adicionado
+            const exists = booksList.some(book => 
+                book.title.toLowerCase() === livro.toLowerCase() && 
+                book.author.toLowerCase() === autor.toLowerCase()
+            );
+            
+            if (exists) {
+                showNotification('⚠️ Este livro já foi adicionado à lista!', 'error');
+                return;
+            }
+            
+            booksList.push({
+                title: livro,
+                author: autor
+            });
+            
+            // Limpa os campos
+            document.getElementById('livro').value = '';
+            document.getElementById('autor').value = '';
+            
+            updateBooksList();
+            updateCopyButton();
+            
+            showNotification(`✅ "${livro}" adicionado com sucesso!`, 'success');
+        }
+        
+        function removeBook(index) {
+            const removedBook = booksList[index];
+            booksList.splice(index, 1);
+            updateBooksList();
+            updateCopyButton();
+            
+            showNotification(`🗑️ "${removedBook.title}" removido da lista.`, 'info');
+        }
+        
+        function updateBooksList() {
+            const bookList = document.getElementById('bookList');
+            const bookCount = document.getElementById('bookCount');
+            
+            if (booksList.length === 0) {
+                bookList.innerHTML = '';
+                bookCount.style.display = 'none';
+                return;
+            }
+            
+            bookCount.style.display = 'block';
+            bookCount.textContent = `📋 ${booksList.length} livro${booksList.length > 1 ? 's' : ''} na lista`;
+            
+            bookList.innerHTML = booksList.map((book, index) => `
+                <div class="book-item">
+                    <div class="book-info">
+                        <div class="book-title">"${book.title}"</div>
+                        <div class="book-author">por ${book.author}</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeBook(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        function updateCopyButton() {
+            const copyBtn = document.getElementById('copyBtn');
+            copyBtn.disabled = booksList.length === 0;
+        }
+        
+        function copyCompiledPrompt() {
+            if (booksList.length === 0) {
+                showNotification('❌ Adicione pelo menos um livro à lista.', 'error');
+                return;
+            }
+            
+            let bookListText = booksList.map((book, index) => 
+                `${index + 1}. "${book.title}" - ${book.author}`
+            ).join('\n');
+            
+            const promptText = `Crie um documento estruturado com resumos dos seguintes livros:
+
+**LISTA DE LIVROS:**
+${bookListText}
+
+**ESTRUTURA DO DOCUMENTO:**
+- **ÍNDICE** com links navegáveis para cada livro
+- Para cada livro, forneça os 5 tipos de análise:
+
+**1. RESUMO ESTRUTURAL**
+- Organize os principais pontos em seções lógicas
+- Destaque argumentos centrais, evidências e conclusões
+- Mantenha a estrutura original da obra
+
+**2. ANÁLISE TEMÁTICA**
+- Identifique e explore os 3-5 temas principais
+- Explique como se desenvolvem ao longo do texto
+- Mostre conexões entre os temas
+
+**3. RESUMO POR CAPÍTULOS/SEÇÕES**
+- Resumo conciso de cada capítulo principal
+- Progressão das ideias ao longo da obra
+- Pontos-chave de cada parte
+
+**4. ANÁLISE CRÍTICA**
+- Pontos fortes e fracos dos argumentos
+- Questionamento de premissas quando relevante
+- Diferentes perspectivas sobre o conteúdo
+- Contextualização no campo/gênero
+
+**5. RESUMO FOCADO E APLICAÇÕES**
+- Aspectos mais práticos e relevantes
+- Insights principais aplicáveis
+- Citações marcantes e conceitos-chave
+- Para quem seria mais útil
+
+Formate como documento PDF navegável com seções claras para cada livro. Mantenha cada seção clara, objetiva e acessível. Use exemplos dos livros quando necessário.`;
+            
+            copyToClipboard(promptText, '📋 Prompt copiado com sucesso!');
+        }
+        
+        // Event listeners para navegação por teclado
+        document.getElementById('livro').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('autor').focus();
+            }
+        });
+        
+        document.getElementById('autor').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addBook();
+            }
+        });
+    </script>
+</body>
+</html>
