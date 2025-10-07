@@ -186,17 +186,6 @@
             border-left: 4px solid #dc3545;
         }
         
-        .debug-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 12px;
-            font-family: monospace;
-            display: none;
-        }
-        
         .section-title {
             color: white;
             font-size: 1.2rem;
@@ -443,7 +432,6 @@
             </div>
             
             <div id="errorMessage" class="error-message" style="display: none;"></div>
-            <div id="debugInfo" class="debug-info"></div>
             
             <!-- Moedas e Criptomoedas -->
             <div class="section-title">💱 Moedas & Criptomoedas</div>
@@ -553,24 +541,38 @@
                     <div class="quote-change" id="lean-cattle-change">--</div>
                     <div class="quote-updated" id="lean-cattle-updated">--</div>
                 </div>
-                
-                <div class="quote-card" id="calf-card" onclick="openChart('calf')">
+            </div>
+            
+            <!-- Energia -->
+            <div class="section-title">⛽ Energia</div>
+            <div class="quotes-grid">
+                <div class="quote-card" id="oil-card" onclick="openChart('oil')">
                     <div class="quote-chart-hint">📊 Ver gráfico</div>
                     <div class="quote-header">
                         <div class="quote-title">
-                            <span class="quote-icon">🐮</span>
-                            <span>Bezerro</span>
+                            <span class="quote-icon">🛢️</span>
+                            <span>Petróleo Brent</span>
                         </div>
-                        <div class="quote-category">Pecuária</div>
+                        <div class="quote-category">Energia</div>
                     </div>
-                    <div class="quote-value" id="calf-value">Carregando...</div>
-                    <div class="quote-change" id="calf-change">--</div>
-                    <div class="quote-updated" id="calf-updated">--</div>
+                    <div class="quote-value" id="oil-value">Carregando...</div>
+                    <div class="quote-change" id="oil-change">--</div>
+                    <div class="quote-updated" id="oil-updated">--</div>
                 </div>
-            </div>
-            
-            <div class="quote-updated" style="text-align: center; margin-top: 30px; color: rgba(255,255,255,0.7);">
-                Última atualização: <span id="lastUpdate">--</span>
+                
+                <div class="quote-card" id="ethanol-card" onclick="openChart('ethanol')">
+                    <div class="quote-chart-hint">📊 Ver gráfico</div>
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🌱</span>
+                            <span>Etanol</span>
+                        </div>
+                        <div class="quote-category">Energia</div>
+                    </div>
+                    <div class="quote-value" id="ethanol-value">Carregando...</div>
+                    <div class="quote-change" id="ethanol-change">--</div>
+                    <div class="quote-updated" id="ethanol-updated">--</div>
+                </div>
             </div>
         </div>
     </div>
@@ -580,21 +582,18 @@
         <div class="chart-modal-content">
             <div class="chart-header">
                 <div class="chart-title">
-                    <span class="icon" id="chartIcon">📈</span>
-                    <div>
-                        <h2 id="chartTitleText">Variação</h2>
-                        <div id="chartSubtitle" style="font-size: 0.9rem; opacity: 0.9;">Análise histórica</div>
-                    </div>
+                    <span class="icon" id="chartIcon">📊</span>
+                    <h2 id="chartTitle">Gráfico de Cotação</h2>
                 </div>
-                <button class="close-btn" onclick="closeChart()">✕</button>
+                <button class="close-btn" onclick="closeChart()">×</button>
             </div>
             
             <div class="chart-controls">
                 <div class="period-buttons">
-                    <button class="period-btn" data-period="1D" onclick="changePeriod('1D')">1D</button>
+                    <button class="period-btn active" data-period="1D" onclick="changePeriod('1D')">1D</button>
                     <button class="period-btn" data-period="1S" onclick="changePeriod('1S')">1S</button>
                     <button class="period-btn" data-period="1M" onclick="changePeriod('1M')">1M</button>
-                    <button class="period-btn active" data-period="3M" onclick="changePeriod('3M')">3M</button>
+                    <button class="period-btn" data-period="3M" onclick="changePeriod('3M')">3M</button>
                 </div>
                 
                 <div class="chart-stats">
@@ -622,161 +621,148 @@
             </div>
             
             <div class="chart-info">
-                📊 Dados simulados para demonstração • Atualizado em tempo real
+                Dados atualizados em tempo real • Clique e arraste para navegar • Passe o mouse sobre o gráfico para ver detalhes
             </div>
         </div>
     </div>
 
-    <script src="../../assets/js/navigation.js"></script>
     <script>
-        // Sistema de debug
-        let debugMode = true;
-        
-        function log(message, data = null) {
-            if (debugMode) {
-                console.log(`[Cotações] ${message}`, data || '');
-                
-                const debugDiv = document.getElementById('debugInfo');
-                if (debugDiv) {
-                    debugDiv.style.display = 'block';
-                    debugDiv.innerHTML += `${new Date().toLocaleTimeString()}: ${message}<br>`;
-                    debugDiv.scrollTop = debugDiv.scrollHeight;
-                }
-            }
-        }
-        
-        // Dados base para cotações (valores realistas que variam)
-        const baseData = {
-            'usd': { base: 5.25, volatility: 0.05, name: 'Dólar Americano (USD/BRL)', icon: '💵', unit: '' },
-            'btc': { base: 380000, volatility: 0.03, name: 'Bitcoin (BTC/BRL)', icon: '₿', unit: '' },
-            'eth': { base: 18500, volatility: 0.04, name: 'Ethereum (ETH/BRL)', icon: 'Ξ', unit: '' },
-            'gold': { base: 325.50, volatility: 0.02, name: 'Ouro 24k (g)', icon: '🥇', unit: '/g' },
-            'corn': { base: 78.90, volatility: 0.03, name: 'Milho (sc)', icon: '🌽', unit: '/sc' },
-            'cattle': { base: 285.40, volatility: 0.025, name: 'Boi Gordo (@)', icon: '🐂', unit: '/@' },
-            'lean-cattle': { base: 245.60, volatility: 0.025, name: 'Boi Magro (@)', icon: '🐄', unit: '/@' },
-            'calf': { base: 1850.00, volatility: 0.03, name: 'Bezerro (cab)', icon: '🐮', unit: '/cab' }
-        };
-        
-        // Configuração das cotações
-        const quotes = {
-            'usd': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: ''
-            },
-            'btc': {
-                formatter: (value) => `R$ ${parseFloat(value).toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`,
-                unit: ''
-            },
-            'eth': {
-                formatter: (value) => `R$ ${parseFloat(value).toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`,
-                unit: ''
-            },
-            'gold': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: '/g'
-            },
-            'corn': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: '/sc'
-            },
-            'cattle': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: '/@'
-            },
-            'lean-cattle': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: '/@'
-            },
-            'calf': {
-                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
-                unit: '/cab'
-            }
-        };
-        
+        // Configuração global
+        const DEBUG_MODE = false; // DESATIVADO por padrão
         let autoRefreshInterval = null;
         let lastValues = {};
+        
+        // Variáveis do gráfico
         let currentChart = null;
         let currentSymbol = null;
-        let currentPeriod = '3M';
+        let currentPeriod = '1D';
+        
+        // Configuração das cotações com valores realistas (Janeiro 2025)
+        const baseData = {
+            usd: { name: 'Dólar Americano', base: 6.15, volatility: 0.02, icon: '💵' },
+            btc: { name: 'Bitcoin', base: 320000, volatility: 0.05, icon: '₿' },
+            eth: { name: 'Ethereum', base: 18500, volatility: 0.06, icon: 'Ξ' },
+            gold: { name: 'Ouro', base: 385.50, volatility: 0.015, icon: '🥇' },
+            corn: { name: 'Milho', base: 85.20, volatility: 0.03, icon: '🌽' },
+            cattle: { name: 'Boi Gordo', base: 285.40, volatility: 0.025, icon: '🐂' },
+            'lean-cattle': { name: 'Boi Magro', base: 195.80, volatility: 0.03, icon: '🐄' },
+            oil: { name: 'Petróleo Brent', base: 420.30, volatility: 0.04, icon: '🛢️' },
+            ethanol: { name: 'Etanol', base: 3.85, volatility: 0.035, icon: '🌱' }
+        };
+        
+        // Formatadores de valores
+        const quotes = {
+            usd: { unit: '', formatter: (v) => `R$ ${v.toFixed(3)}` },
+            btc: { unit: '', formatter: (v) => `R$ ${v.toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}` },
+            eth: { unit: '', formatter: (v) => `R$ ${v.toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}` },
+            gold: { unit: '', formatter: (v) => `R$ ${v.toFixed(2)}` },
+            corn: { unit: '/sc', formatter: (v) => `R$ ${v.toFixed(2)}` },
+            cattle: { unit: '/@', formatter: (v) => `R$ ${v.toFixed(2)}` },
+            'lean-cattle': { unit: '/@', formatter: (v) => `R$ ${v.toFixed(2)}` },
+            oil: { unit: '/bbl', formatter: (v) => `R$ ${v.toFixed(2)}` },
+            ethanol: { unit: '/L', formatter: (v) => `R$ ${v.toFixed(3)}` }
+        };
+        
+        // Função de log (apenas no console quando DEBUG_MODE = true)
+        function log(...args) {
+            if (DEBUG_MODE) {
+                const timestamp = new Date().toLocaleTimeString('pt-BR');
+                console.log(`[${timestamp}]`, ...args);
+            }
+        }
         
         // Função para gerar dados históricos realistas
         function generateHistoricalData(symbol, period) {
             const config = baseData[symbol];
             const now = new Date();
-            let dataPoints = [];
-            let intervals, stepMs;
+            const data = [];
             
-            // Define número de pontos e intervalo baseado no período
-            switch(period) {
+            let points, interval, baseTime;
+            
+            switch (period) {
                 case '1D':
-                    intervals = 24; // 24 horas
-                    stepMs = 60 * 60 * 1000; // 1 hora
+                    points = 24; // 24 horas
+                    interval = 60 * 60 * 1000; // 1 hora
+                    baseTime = now.getTime() - (24 * 60 * 60 * 1000);
                     break;
                 case '1S':
-                    intervals = 7; // 7 dias
-                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    points = 7; // 7 dias
+                    interval = 24 * 60 * 60 * 1000; // 1 dia
+                    baseTime = now.getTime() - (7 * 24 * 60 * 60 * 1000);
                     break;
                 case '1M':
-                    intervals = 30; // 30 dias
-                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    points = 30; // 30 dias
+                    interval = 24 * 60 * 60 * 1000; // 1 dia
+                    baseTime = now.getTime() - (30 * 24 * 60 * 60 * 1000);
                     break;
                 case '3M':
-                default:
-                    intervals = 90; // 90 dias
-                    stepMs = 24 * 60 * 60 * 1000; // 1 dia
+                    points = 90; // 90 dias
+                    interval = 24 * 60 * 60 * 1000; // 1 dia
+                    baseTime = now.getTime() - (90 * 24 * 60 * 60 * 1000);
                     break;
+                default:
+                    points = 24;
+                    interval = 60 * 60 * 1000;
+                    baseTime = now.getTime() - (24 * 60 * 60 * 1000);
             }
             
-            // Gera pontos históricos com tendência e volatilidade
             let currentValue = config.base;
-            const trendFactor = (Math.random() - 0.5) * 0.3; // Tendência geral (-15% a +15%)
             
-            for (let i = intervals; i >= 0; i--) {
-                const date = new Date(now.getTime() - (i * stepMs));
+            for (let i = 0; i < points; i++) {
+                const timeOffset = i * interval;
+                const date = new Date(baseTime + timeOffset);
                 
-                // Aplica tendência progressiva
-                const progressFactor = (intervals - i) / intervals;
-                const trendValue = currentValue * (1 + (trendFactor * progressFactor));
+                // Simula movimentação mais realista baseada em tendências
+                const randomFactor = (Math.sin(i * 0.3) * 0.3 + Math.random() - 0.5) * config.volatility;
+                const trend = Math.sin(i * 0.1) * 0.1 * config.volatility; // Tendência suave
                 
-                // Adiciona volatilidade diária
-                const randomFactor = (Math.random() - 0.5) * config.volatility * 2;
-                const finalValue = trendValue * (1 + randomFactor);
+                currentValue = currentValue * (1 + randomFactor + trend);
                 
-                dataPoints.push({
+                // Mantém dentro de limites razoáveis
+                const minValue = config.base * 0.85;
+                const maxValue = config.base * 1.15;
+                currentValue = Math.max(minValue, Math.min(maxValue, currentValue));
+                
+                data.push({
                     date: date,
-                    value: finalValue
+                    value: currentValue
                 });
-                
-                currentValue = finalValue;
             }
             
-            return dataPoints;
+            return data;
         }
         
-        // Função para abrir o modal do gráfico
+        // Função para abrir gráfico
         function openChart(symbol) {
             log(`Abrindo gráfico para ${symbol}`);
             
             currentSymbol = symbol;
+            currentPeriod = '1D';
+            
             const config = baseData[symbol];
             const modal = document.getElementById('chartModal');
             
             // Atualiza título e ícone
+            document.getElementById('chartTitle').textContent = config.name;
             document.getElementById('chartIcon').textContent = config.icon;
-            document.getElementById('chartTitleText').textContent = `Variação ${config.name}`;
-            document.getElementById('chartSubtitle').textContent = 'Análise histórica de preços';
+            
+            // Reset dos botões de período
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('[data-period="1D"]').classList.add('active');
             
             // Mostra modal
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            // Gera gráfico após um pequeno delay para garantir que o modal esteja visível
+            // Gera e exibe gráfico
             setTimeout(() => {
                 updateChart();
             }, 100);
         }
         
-        // Função para fechar o modal
+        // Função para fechar gráfico
         function closeChart() {
             const modal = document.getElementById('chartModal');
             modal.classList.remove('active');
@@ -983,7 +969,8 @@
             const config = baseData[symbol];
             const now = Date.now();
             
-            const timeSeed = Math.floor(now / 30000);
+            // Usa timestamp atual como seed para manter consistência durante atualizações
+            const timeSeed = Math.floor(now / 30000); // Muda a cada 30 segundos
             const random1 = ((timeSeed * 9301 + 49297) % 233280) / 233280;
             const random2 = ((timeSeed * 9301 + 49297 + symbol.length) % 233280) / 233280;
             
@@ -1008,12 +995,14 @@
             log(`Iniciando busca para ${symbol}`);
             
             try {
+                // Tenta buscar dados reais primeiro
                 const realData = await tryFetchRealData(symbol);
                 if (realData) {
                     log(`Usando dados reais para ${symbol}`);
                     return realData;
                 }
                 
+                // Fallback para dados simulados
                 log(`Usando dados simulados para ${symbol}`);
                 return generateRealisticData(symbol);
                 
@@ -1039,17 +1028,21 @@
             
             const config = quotes[symbol];
             
+            // Atualiza valor
             valueElement.textContent = config.formatter(data.value) + config.unit;
             
+            // Atualiza mudança
             const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : 'neutral';
             const changeIcon = data.change > 0 ? '▲' : data.change < 0 ? '▼' : '●';
             
             changeElement.className = `quote-change ${changeClass}`;
             changeElement.innerHTML = `${changeIcon} ${Math.abs(data.change).toFixed(2)}%`;
             
+            // Atualiza timestamp
             const sourceIcon = data.source === 'real' ? '🌐' : '📊';
             updatedElement.textContent = `${sourceIcon} ${data.timestamp}`;
             
+            // Remove estados de loading/error
             cardElement.classList.remove('loading', 'error');
             
             log(`Display atualizado para ${symbol}`);
@@ -1100,6 +1093,7 @@
             const refreshIcon = document.getElementById('refreshIcon');
             const errorMessage = document.getElementById('errorMessage');
             
+            // UI feedback
             if (refreshBtn) refreshBtn.disabled = true;
             if (refreshIcon) refreshIcon.classList.add('spinning');
             if (errorMessage) errorMessage.style.display = 'none';
@@ -1108,18 +1102,11 @@
                 const symbols = Object.keys(quotes);
                 log(`Atualizando ${symbols.length} cotações:`, symbols);
                 
+                // Atualiza todas em paralelo
                 const promises = symbols.map(symbol => updateQuote(symbol));
                 await Promise.all(promises);
                 
-                const lastUpdateElement = document.getElementById('lastUpdate');
-                if (lastUpdateElement) {
-                    lastUpdateElement.textContent = new Date().toLocaleTimeString('pt-BR');
-                }
-                
                 log('Todas as cotações foram atualizadas com sucesso');
-                if (typeof showNotification === 'function') {
-                    showNotification('✅ Cotações atualizadas com sucesso!', 'success');
-                }
                 
             } catch (error) {
                 log('Erro ao atualizar cotações:', error);
@@ -1128,11 +1115,8 @@
                     errorMessage.textContent = 'Erro ao atualizar algumas cotações. Tente novamente.';
                     errorMessage.style.display = 'block';
                 }
-                
-                if (typeof showNotification === 'function') {
-                    showNotification('❌ Erro ao atualizar cotações.', 'error');
-                }
             } finally {
+                // Restore UI
                 setTimeout(() => {
                     if (refreshBtn) refreshBtn.disabled = false;
                     if (refreshIcon) refreshIcon.classList.remove('spinning');
@@ -1145,20 +1129,14 @@
             const checkbox = document.getElementById('autoRefresh');
             
             if (checkbox && checkbox.checked) {
-                autoRefreshInterval = setInterval(refreshAllQuotes, 30000);
+                autoRefreshInterval = setInterval(refreshAllQuotes, 30000); // 30 segundos
                 log('Atualização automática ativada');
-                if (typeof showNotification === 'function') {
-                    showNotification('🔄 Atualização automática ativada (30s)', 'info');
-                }
             } else {
                 if (autoRefreshInterval) {
                     clearInterval(autoRefreshInterval);
                     autoRefreshInterval = null;
                 }
                 log('Atualização automática desativada');
-                if (typeof showNotification === 'function') {
-                    showNotification('⏹️ Atualização automática desativada', 'info');
-                }
             }
         }
         
@@ -1166,6 +1144,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             log('Página carregada, iniciando cotações');
             
+            // Pequeno delay para melhorar a experiência
             setTimeout(() => {
                 refreshAllQuotes();
             }, 500);
@@ -1185,6 +1164,7 @@
             }
         });
         
+        // Limpeza ao sair da página
         window.addEventListener('beforeunload', function() {
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
@@ -1192,16 +1172,18 @@
             }
         });
         
-        // Expor funções para debug
-        window.debugCotacoes = {
-            refreshAll: refreshAllQuotes,
-            updateQuote: updateQuote,
-            openChart: openChart,
-            toggleDebug: () => {
-                debugMode = !debugMode;
-                console.log('Debug mode:', debugMode);
-            }
-        };
+        // Expor funções para debug (apenas se DEBUG_MODE = true)
+        if (DEBUG_MODE) {
+            window.debugCotacoes = {
+                refreshAll: refreshAllQuotes,
+                updateQuote: updateQuote,
+                openChart: openChart,
+                toggleDebug: () => {
+                    DEBUG_MODE = !DEBUG_MODE;
+                    console.log('Debug mode:', DEBUG_MODE);
+                }
+            };
+        }
         
         log('Script inicializado com sucesso');
     </script>
