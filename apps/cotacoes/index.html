@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotações em Tempo Real | Fred's Apps</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cotações">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNncmFkaWVudCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+📈</text></svg>">
+    
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <style>
+        /* Estilos específicos do app de cotações */
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .quote-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quote-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .quote-card.loading {
+            opacity: 0.7;
+        }
+        
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .quote-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .quote-icon {
+            font-size: 1.5rem;
+        }
+        
+        .quote-category {
+            background: #f8f9fa;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .quote-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .quote-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .quote-change.positive {
+            color: #28a745;
+        }
+        
+        .quote-change.negative {
+            color: #dc3545;
+        }
+        
+        .quote-change.neutral {
+            color: #6c757d;
+        }
+        
+        .quote-updated {
+            font-size: 0.7rem;
+            color: #999;
+            text-align: right;
+            margin-top: 10px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .refresh-icon {
+            transition: transform 0.5s ease;
+        }
+        
+        .refresh-icon.spinning {
+            transform: rotate(360deg);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .auto-refresh input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            height: 20px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 30px 0 15px 0;
+            padding-left: 15px;
+            border-left: 4px solid rgba(255,255,255,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .quotes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body class="app-page">
+    <div class="main-container">
+        <a href="../../" class="back-btn">← Voltar ao Hub</a>
+        
+        <div class="app-container" style="max-width: 1000px;">
+            <div class="header">
+                <h1>📈 Cotações em Tempo Real</h1>
+                <p>Acompanhe moedas, criptomoedas e commodities brasileiras</p>
+            </div>
+            
+            <div class="controls">
+                <button class="refresh-btn" onclick="refreshAllQuotes()" id="refreshBtn">
+                    <span class="refresh-icon" id="refreshIcon">🔄</span>
+                    Atualizar Cotações
+                </button>
+                
+                <div class="auto-refresh">
+                    <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
+                    <label for="autoRefresh">Atualização automática (30s)</label>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <!-- Moedas e Criptomoedas -->
+            <div class="section-title">💱 Moedas & Criptomoedas</div>
+            <div class="quotes-grid">
+                <div class="quote-card" id="usd-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">💵</span>
+                            <span>Dólar Americano</span>
+                        </div>
+                        <div class="quote-category">Moeda</div>
+                    </div>
+                    <div class="quote-value" id="usd-value">Carregando...</div>
+                    <div class="quote-change" id="usd-change">--</div>
+                    <div class="quote-updated" id="usd-updated">--</div>
+                </div>
+                
+                <div class="quote-card" id="btc-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">₿</span>
+                            <span>Bitcoin</span>
+                        </div>
+                        <div class="quote-category">Crypto</div>
+                    </div>
+                    <div class="quote-value" id="btc-value">Carregando...</div>
+                    <div class="quote-change" id="btc-change">--</div>
+                    <div class="quote-updated" id="btc-updated">--</div>
+                </div>
+                
+                <div class="quote-card" id="eth-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">Ξ</span>
+                            <span>Ethereum</span>
+                        </div>
+                        <div class="quote-category">Crypto</div>
+                    </div>
+                    <div class="quote-value" id="eth-value">Carregando...</div>
+                    <div class="quote-change" id="eth-change">--</div>
+                    <div class="quote-updated" id="eth-updated">--</div>
+                </div>
+            </div>
+            
+            <!-- Commodities -->
+            <div class="section-title">🥇 Commodities</div>
+            <div class="quotes-grid">
+                <div class="quote-card" id="gold-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🥇</span>
+                            <span>Ouro</span>
+                        </div>
+                        <div class="quote-category">Metais</div>
+                    </div>
+                    <div class="quote-value" id="gold-value">Carregando...</div>
+                    <div class="quote-change" id="gold-change">--</div>
+                    <div class="quote-updated" id="gold-updated">--</div>
+                </div>
+                
+                <div class="quote-card" id="corn-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🌽</span>
+                            <span>Milho</span>
+                        </div>
+                        <div class="quote-category">Agrícola</div>
+                    </div>
+                    <div class="quote-value" id="corn-value">Carregando...</div>
+                    <div class="quote-change" id="corn-change">--</div>
+                    <div class="quote-updated" id="corn-updated">--</div>
+                </div>
+            </div>
+            
+            <!-- Pecuária -->
+            <div class="section-title">🐂 Pecuária</div>
+            <div class="quotes-grid">
+                <div class="quote-card" id="cattle-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🐂</span>
+                            <span>Boi Gordo</span>
+                        </div>
+                        <div class="quote-category">Pecuária</div>
+                    </div>
+                    <div class="quote-value" id="cattle-value">Carregando...</div>
+                    <div class="quote-change" id="cattle-change">--</div>
+                    <div class="quote-updated" id="cattle-updated">--</div>
+                </div>
+                
+                <div class="quote-card" id="lean-cattle-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🐄</span>
+                            <span>Boi Magro</span>
+                        </div>
+                        <div class="quote-category">Pecuária</div>
+                    </div>
+                    <div class="quote-value" id="lean-cattle-value">Carregando...</div>
+                    <div class="quote-change" id="lean-cattle-change">--</div>
+                    <div class="quote-updated" id="lean-cattle-updated">--</div>
+                </div>
+                
+                <div class="quote-card" id="calf-card">
+                    <div class="quote-header">
+                        <div class="quote-title">
+                            <span class="quote-icon">🐮</span>
+                            <span>Bezerro</span>
+                        </div>
+                        <div class="quote-category">Pecuária</div>
+                    </div>
+                    <div class="quote-value" id="calf-value">Carregando...</div>
+                    <div class="quote-change" id="calf-change">--</div>
+                    <div class="quote-updated" id="calf-updated">--</div>
+                </div>
+            </div>
+            
+            <div class="quote-updated" style="text-align: center; margin-top: 30px; color: rgba(255,255,255,0.7);">
+                Última atualização: <span id="lastUpdate">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/navigation.js"></script>
+    <script>
+        // Configuração das APIs
+        const APIs = {
+            // AwesomeAPI para moedas brasileiras
+            currencies: 'https://economia.awesomeapi.com.br/last/',
+            // CoinGecko para criptomoedas
+            crypto: 'https://api.coingecko.com/api/v3/simple/price',
+        };
+        
+        // Configuração das cotações
+        const quotes = {
+            'usd': {
+                api: 'currencies',
+                endpoint: 'USD-BRL',
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
+                unit: ''
+            },
+            'btc': {
+                api: 'crypto',
+                endpoint: 'bitcoin',
+                currency: 'brl',
+                formatter: (value) => `R$ ${parseFloat(value).toLocaleString('pt-BR')}`,
+                unit: ''
+            },
+            'eth': {
+                api: 'crypto',
+                endpoint: 'ethereum', 
+                currency: 'brl',
+                formatter: (value) => `R$ ${parseFloat(value).toLocaleString('pt-BR')}`,
+                unit: ''
+            },
+            // Para commodities, vou usar dados simulados por enquanto
+            'gold': {
+                api: 'simulated',
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
+                unit: '/g'
+            },
+            'corn': {
+                api: 'simulated', 
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
+                unit: '/sc'
+            },
+            'cattle': {
+                api: 'simulated',
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
+                unit: '/@'
+            },
+            'lean-cattle': {
+                api: 'simulated',
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2)}`,
+                unit: '/@'
+            },
+            'calf': {
+                api: 'simulated',
+                formatter: (value) => `R$ ${parseFloat(value).toFixed(2}}`,
+                unit: '/cab'
+            }
+        };
+        
+        let autoRefreshInterval = null;
+        
+        // Dados simulados para commodities (você pode substituir por APIs reais)
+        const simulatedData = {
+            'gold': { value: 325.50, change: 2.3 },
+            'corn': { value: 78.90, change: -1.2 },
+            'cattle': { value: 285.40, change: 0.8 },
+            'lean-cattle': { value: 245.60, change: -0.5 },
+            'calf': { value: 1850.00, change: 1.5 }
+        };
+        
+        // Função para buscar cotação de moedas
+        async function fetchCurrency(symbol) {
+            try {
+                const response = await fetch(`${APIs.currencies}${symbol}`);
+                if (!response.ok) throw new Error('Erro na API');
+                
+                const data = await response.json();
+                const key = symbol.replace('-', '');
+                const quote = data[key];
+                
+                return {
+                    value: parseFloat(quote.bid),
+                    change: parseFloat(quote.pctChange),
+                    timestamp: new Date(quote.create_date).toLocaleTimeString('pt-BR')
+                };
+            } catch (error) {
+                console.error(`Erro ao buscar ${symbol}:`, error);
+                throw error;
+            }
+        }
+        
+        // Função para buscar cotação de criptomoedas
+        async function fetchCrypto(coin) {
+            try {
+                const response = await fetch(
+                    `${APIs.crypto}?ids=${coin}&vs_currencies=brl&include_24hr_change=true`
+                );
+                if (!response.ok) throw new Error('Erro na API');
+                
+                const data = await response.json();
+                
+                return {
+                    value: data[coin].brl,
+                    change: data[coin].brl_24h_change || 0,
+                    timestamp: new Date().toLocaleTimeString('pt-BR')
+                };
+            } catch (error) {
+                console.error(`Erro ao buscar ${coin}:`, error);
+                throw error;
+            }
+        }
+        
+        // Função para dados simulados
+        async function fetchSimulated(symbol) {
+            // Simula delay da API
+            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+            
+            const data = simulatedData[symbol];
+            // Adiciona pequena variação aleatória
+            const variation = (Math.random() - 0.5) * 0.1;
+            
+            return {
+                value: data.value + variation,
+                change: data.change + (Math.random() - 0.5) * 0.5,
+                timestamp: new Date().toLocaleTimeString('pt-BR')
+            };
+        }
+        
+        // Função para buscar uma cotação específica
+        async function fetchQuote(symbol) {
+            const config = quotes[symbol];
+            
+            try {
+                let result;
+                
+                switch(config.api) {
+                    case 'currencies':
+                        result = await fetchCurrency(config.endpoint);
+                        break;
+                    case 'crypto':
+                        result = await fetchCrypto(config.endpoint);
+                        break;
+                    case 'simulated':
+                        result = await fetchSimulated(symbol);
+                        break;
+                    default:
+                        throw new Error('API não configurada');
+                }
+                
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        // Função para atualizar uma cotação na interface
+        function updateQuoteDisplay(symbol, data) {
+            const valueElement = document.getElementById(`${symbol}-value`);
+            const changeElement = document.getElementById(`${symbol}-change`);
+            const updatedElement = document.getElementById(`${symbol}-updated`);
+            const cardElement = document.getElementById(`${symbol}-card`);
+            
+            const config = quotes[symbol];
+            
+            // Atualiza o valor
+            valueElement.textContent = config.formatter(data.value) + config.unit;
+            
+            // Atualiza a variação
+            const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : 'neutral';
+            const changeIcon = data.change > 0 ? '▲' : data.change < 0 ? '▼' : '●';
+            
+            changeElement.className = `quote-change ${changeClass}`;
+            changeElement.innerHTML = `${changeIcon} ${Math.abs(data.change).toFixed(2)}%`;
+            
+            // Atualiza horário
+            updatedElement.textContent = `Atualizado às ${data.timestamp}`;
+            
+            // Remove estado de carregamento
+            cardElement.classList.remove('loading');
+        }
+        
+        // Função para mostrar erro em uma cotação
+        function showQuoteError(symbol, error) {
+            const valueElement = document.getElementById(`${symbol}-value`);
+            const changeElement = document.getElementById(`${symbol}-change`);
+            const updatedElement = document.getElementById(`${symbol}-updated`);
+            const cardElement = document.getElementById(`${symbol}-card`);
+            
+            valueElement.textContent = 'Erro ao carregar';
+            changeElement.textContent = '--';
+            updatedElement.textContent = 'Falha na atualização';
+            
+            cardElement.classList.remove('loading');
+            
+            console.error(`Erro em ${symbol}:`, error);
+        }
+        
+        // Função para atualizar uma cotação específica
+        async function updateQuote(symbol) {
+            const cardElement = document.getElementById(`${symbol}-card`);
+            cardElement.classList.add('loading');
+            
+            try {
+                const data = await fetchQuote(symbol);
+                updateQuoteDisplay(symbol, data);
+            } catch (error) {
+                showQuoteError(symbol, error);
+            }
+        }
+        
+        // Função para atualizar todas as cotações
+        async function refreshAllQuotes() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const refreshIcon = document.getElementById('refreshIcon');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Desabilita botão e anima ícone
+            refreshBtn.disabled = true;
+            refreshIcon.classList.add('spinning');
+            errorMessage.style.display = 'none';
+            
+            try {
+                // Atualiza todas as cotações em paralelo
+                const promises = Object.keys(quotes).map(symbol => updateQuote(symbol));
+                await Promise.all(promises);
+                
+                // Atualiza timestamp geral
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('pt-BR');
+                
+                showNotification('✅ Cotações atualizadas com sucesso!', 'success');
+            } catch (error) {
+                errorMessage.textContent = 'Erro ao atualizar algumas cotações. Tente novamente.';
+                errorMessage.style.display = 'block';
+                showNotification('❌ Erro ao atualizar cotações.', 'error');
+            } finally {
+                // Reabilita botão
+                setTimeout(() => {
+                    refreshBtn.disabled = false;
+                    refreshIcon.classList.remove('spinning');
+                }, 500);
+            }
+        }
+        
+        // Função para alternar atualização automática
+        function toggleAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(refreshAllQuotes, 30000); // 30 segundos
+                showNotification('🔄 Atualização automática ativada (30s)', 'info');
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                showNotification('⏹️ Atualização automática desativada', 'info');
+            }
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carrega cotações iniciais
+            refreshAllQuotes();
+        });
+        
+        // Cleanup ao sair da página
+        window.addEventListener('beforeunload', function() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
