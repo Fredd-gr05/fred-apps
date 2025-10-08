@@ -3,17 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compilado de Análise de Livros | Fred's Apps</title>
+    <title>Compilado de Análise de Livros</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Análise Livros">
+    <meta name="apple-mobile-web-app-title" content="Compilado Livros">
     <meta name="theme-color" content="#667eea">
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNncmFkaWVudCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+📚</text></svg>">
-    
-    <link rel="stylesheet" href="../../assets/css/common.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNncmFkaWVudCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+8J+TujwvdGV4dD48L3N2Zz4=">
+
     <style>
-        /* Estilos específicos do app de livros */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
@@ -42,6 +99,15 @@
             background: white;
         }
         
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .search-box input {
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+        
         .add-btn {
             width: 100%;
             padding: 15px;
@@ -53,41 +119,52 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s ease;
-            margin-bottom: 20px;
         }
         
         .add-btn:hover {
             transform: translateY(-2px);
+            background: #218838;
         }
         
-        .copy-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .library-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            background: #667eea;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease;
-            margin-top: 10px;
+            transition: background 0.2s ease;
         }
         
-        .copy-btn:hover {
-            transform: translateY(-2px);
+        .control-btn:hover {
+            background: #5a6fd8;
         }
         
-        .copy-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .control-btn.secondary {
+            background: #6c757d;
         }
         
-        .book-list {
-            margin: 20px 0;
-            max-height: 300px;
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .book-library {
+            max-height: 400px;
             overflow-y: auto;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 10px;
         }
         
         .book-item {
@@ -97,8 +174,24 @@
             border-radius: 10px;
             border-left: 4px solid #667eea;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
+            transition: background 0.2s ease;
+        }
+        
+        .book-item:hover {
+            background: #e9ecef;
+        }
+        
+        .book-item.selected {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+        
+        .book-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
         
         .book-info {
@@ -120,182 +213,403 @@
             background: #dc3545;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 8px 12px;
+            border-radius: 6px;
+            padding: 6px 10px;
             cursor: pointer;
-            font-size: 14px;
-            margin-left: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
         }
         
         .remove-btn:hover {
+            opacity: 1;
             background: #c82333;
         }
         
-        .book-count {
+        .stats {
             text-align: center;
             color: #667eea;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
         }
         
-        .example {
-            background: #f8f9fa;
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-msg {
+            display: none;
+            background: #d4edda;
+            color: #155724;
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 25px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .example-title {
+            text-align: center;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
+            margin-top: 15px;
+            border: 1px solid #c3e6cb;
         }
         
-        .example-text {
+        .empty-library {
+            text-align: center;
             color: #666;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+        
+        .selected-books {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .selected-count {
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .selected-list {
             font-size: 14px;
-            line-height: 1.4;
+            color: #555;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .library-controls {
+                flex-direction: column;
+            }
+            
+            .control-btn {
+                min-width: auto;
+            }
         }
     </style>
 </head>
-<body class="app-page">
-    <div class="main-container">
-        <a href="../../" class="back-btn">← Voltar ao Hub</a>
-        
-        <div class="app-container">
-            <div class="header">
-                <h1>📚 Compilado de Análise de Livros</h1>
-                <p>Crie um documento único com múltiplos resumos estruturados</p>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Compilado de Análise de Livros</h1>
+            <p>Gerencie sua biblioteca e crie resumos personalizados</p>
+        </div>
+
+        <!-- Seção: Adicionar Novo Livro -->
+        <div class="section">
+            <div class="section-title">
+                ➕ Adicionar Novo Livro
+            </div>
+            <div class="form-group">
+                <label for="livro">Nome do Livro:</label>
+                <input type="text" id="livro" placeholder="Ex: 1984">
+            </div>
+            <div class="form-group">
+                <label for="autor">Autor:</label>
+                <input type="text" id="autor" placeholder="Ex: George Orwell">
+            </div>
+            <button class="add-btn" onclick="addBook()">Adicionar à Biblioteca</button>
+        </div>
+
+        <!-- Seção: Biblioteca de Livros -->
+        <div class="section">
+            <div class="section-title">
+                📖 Biblioteca de Livros
             </div>
             
-            <div class="example">
-                <div class="example-title">Como usar:</div>
-                <div class="example-text">
-                    1. Adicione os livros um por um<br>
-                    2. Veja a lista se formando abaixo<br>
-                    3. Copie o prompt completo para gerar o documento compilado
-                </div>
+            <div class="search-box">
+                <input type="text" id="searchBox" placeholder="🔍 Buscar livros..." onkeyup="filterLibrary()">
             </div>
-            
-            <form id="bookForm">
-                <div class="form-group">
-                    <label for="livro">📖 Nome do Livro:</label>
-                    <input type="text" id="livro" placeholder="Ex: Competitive Strategy" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="autor">✍️ Autor:</label>
-                    <input type="text" id="autor" placeholder="Ex: Michael Porter" required>
-                </div>
-                
-                <button type="button" class="add-btn" onclick="addBook()">
-                    ➕ Adicionar à Lista
-                </button>
-            </form>
-            
-            <div id="bookList" class="book-list"></div>
-            
-            <div id="bookCount" class="book-count" style="display: none;"></div>
-            
-            <button type="button" id="copyBtn" class="copy-btn" onclick="copyCompiledPrompt()" disabled>
-                📋 Copiar Prompt do Documento Compilado
+
+            <div class="library-controls">
+                <button class="control-btn" onclick="selectAll()">Marcar Todos</button>
+                <button class="control-btn secondary" onclick="deselectAll()">Desmarcar Todos</button>
+                <button class="control-btn secondary" onclick="clearLibrary()">Limpar Biblioteca</button>
+            </div>
+
+            <div id="libraryStats" class="stats"></div>
+
+            <div id="bookLibrary" class="book-library"></div>
+
+            <div id="selectedBooksInfo" class="selected-books" style="display: none;">
+                <div id="selectedCount" class="selected-count"></div>
+                <div id="selectedList" class="selected-list"></div>
+            </div>
+        </div>
+
+        <!-- Seção: Gerar Resumo -->
+        <div class="section">
+            <div class="section-title">
+                📝 Gerar Resumo
+            </div>
+            <button id="generateBtn" class="generate-btn" onclick="generatePrompt()" disabled>
+                Gerar Resumo dos Livros Selecionados
             </button>
+
+            <div id="successMsg" class="success-msg">
+                ✅ Prompt copiado com sucesso!
+            </div>
         </div>
     </div>
 
-    <script src="../../assets/js/navigation.js"></script>
     <script>
-        // Código específico do app de livros
-        let booksList = [];
-        
+        let booksLibrary = [];
+        let selectedBooks = [];
+
+        // Carrega a biblioteca do localStorage ao iniciar
+        function loadLibrary() {
+            const saved = localStorage.getItem('booksLibrary');
+            if (saved) {
+                booksLibrary = JSON.parse(saved);
+            }
+            updateLibraryDisplay();
+            updateStats();
+        }
+
+        // Salva a biblioteca no localStorage
+        function saveLibrary() {
+            localStorage.setItem('booksLibrary', JSON.stringify(booksLibrary));
+        }
+
+        // Adiciona um novo livro à biblioteca
         function addBook() {
             const livro = document.getElementById('livro').value.trim();
             const autor = document.getElementById('autor').value.trim();
             
             if (!livro || !autor) {
-                showNotification('❌ Por favor, preencha o nome do livro e do autor.', 'error');
+                alert('Por favor, preencha o nome do livro e do autor.');
                 return;
             }
-            
-            // Verifica se o livro já foi adicionado
-            const exists = booksList.some(book => 
-                book.title.toLowerCase() === livro.toLowerCase() && 
+
+            // Verifica se o livro já existe na biblioteca
+            const exists = booksLibrary.some(book =>
+                book.title.toLowerCase() === livro.toLowerCase() &&
                 book.author.toLowerCase() === autor.toLowerCase()
             );
-            
+
             if (exists) {
-                showNotification('⚠️ Este livro já foi adicionado à lista!', 'error');
+                alert('Este livro já está na biblioteca!');
                 return;
             }
-            
-            booksList.push({
+
+            // Adiciona o novo livro
+            const newBook = {
+                id: Date.now(),
                 title: livro,
-                author: autor
-            });
-            
+                author: autor,
+                dateAdded: new Date().toISOString()
+            };
+
+            booksLibrary.push(newBook);
+            saveLibrary();
+
             // Limpa os campos
             document.getElementById('livro').value = '';
             document.getElementById('autor').value = '';
-            
-            updateBooksList();
-            updateCopyButton();
-            
-            showNotification(`✅ "${livro}" adicionado com sucesso!`, 'success');
+
+            updateLibraryDisplay();
+            updateStats();
+
+            // Foca no primeiro campo para adicionar outro livro
+            document.getElementById('livro').focus();
         }
-        
-        function removeBook(index) {
-            const removedBook = booksList[index];
-            booksList.splice(index, 1);
-            updateBooksList();
-            updateCopyButton();
-            
-            showNotification(`🗑️ "${removedBook.title}" removido da lista.`, 'info');
+
+        // Remove um livro da biblioteca
+        function removeBook(bookId) {
+            if (confirm('Tem certeza que deseja remover este livro da biblioteca?')) {
+                booksLibrary = booksLibrary.filter(book => book.id !== bookId);
+                selectedBooks = selectedBooks.filter(id => id !== bookId);
+                saveLibrary();
+                updateLibraryDisplay();
+                updateStats();
+                updateSelectedBooksDisplay();
+            }
         }
-        
-        function updateBooksList() {
-            const bookList = document.getElementById('bookList');
-            const bookCount = document.getElementById('bookCount');
+
+        // Atualiza a exibição da biblioteca
+        function updateLibraryDisplay() {
+            const library = document.getElementById('bookLibrary');
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             
-            if (booksList.length === 0) {
-                bookList.innerHTML = '';
-                bookCount.style.display = 'none';
+            let filteredBooks = booksLibrary;
+            if (searchTerm) {
+                filteredBooks = booksLibrary.filter(book =>
+                    book.title.toLowerCase().includes(searchTerm) ||
+                    book.author.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (filteredBooks.length === 0) {
+                library.innerHTML = '<div class="empty-library">📚 Nenhum livro encontrado na biblioteca</div>';
                 return;
             }
-            
-            bookCount.style.display = 'block';
-            bookCount.textContent = `📋 ${booksList.length} livro${booksList.length > 1 ? 's' : ''} na lista`;
-            
-            bookList.innerHTML = booksList.map((book, index) => `
-                <div class="book-item">
-                    <div class="book-info">
-                        <div class="book-title">"${book.title}"</div>
-                        <div class="book-author">por ${book.author}</div>
+
+            library.innerHTML = filteredBooks.map(book => {
+                const isSelected = selectedBooks.includes(book.id);
+                return `
+                    <div class="book-item ${isSelected ? 'selected' : ''}">
+                        <input type="checkbox" 
+                               class="book-checkbox" 
+                               ${isSelected ? 'checked' : ''} 
+                               onchange="toggleBookSelection(${book.id})">
+                        <div class="book-info">
+                            <div class="book-title">"${book.title}"</div>
+                            <div class="book-author">por ${book.author}</div>
+                        </div>
+                        <button class="remove-btn" onclick="removeBook(${book.id})" title="Remover da biblioteca">✕</button>
                     </div>
-                    <button class="remove-btn" onclick="removeBook(${index})">✕</button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
-        
-        function updateCopyButton() {
-            const copyBtn = document.getElementById('copyBtn');
-            copyBtn.disabled = booksList.length === 0;
+
+        // Alterna seleção de um livro
+        function toggleBookSelection(bookId) {
+            if (selectedBooks.includes(bookId)) {
+                selectedBooks = selectedBooks.filter(id => id !== bookId);
+            } else {
+                selectedBooks.push(bookId);
+            }
+            updateLibraryDisplay();
+            updateSelectedBooksDisplay();
+            updateGenerateButton();
         }
-        
-        function copyCompiledPrompt() {
-            if (booksList.length === 0) {
-                showNotification('❌ Adicione pelo menos um livro à lista.', 'error');
+
+        // Seleciona todos os livros visíveis
+        function selectAll() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            let filteredBooks = booksLibrary;
+            
+            if (searchTerm) {
+                filteredBooks = booksLibrary.filter(book =>
+                    book.title.toLowerCase().includes(searchTerm) ||
+                    book.author.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredBooks.forEach(book => {
+                if (!selectedBooks.includes(book.id)) {
+                    selectedBooks.push(book.id);
+                }
+            });
+
+            updateLibraryDisplay();
+            updateSelectedBooksDisplay();
+            updateGenerateButton();
+        }
+
+        // Desmarca todos os livros
+        function deselectAll() {
+            selectedBooks = [];
+            updateLibraryDisplay();
+            updateSelectedBooksDisplay();
+            updateGenerateButton();
+        }
+
+        // Limpa toda a biblioteca
+        function clearLibrary() {
+            if (confirm('Tem certeza que deseja limpar toda a biblioteca? Esta ação não pode ser desfeita.')) {
+                booksLibrary = [];
+                selectedBooks = [];
+                saveLibrary();
+                updateLibraryDisplay();
+                updateStats();
+                updateSelectedBooksDisplay();
+                updateGenerateButton();
+            }
+        }
+
+        // Filtra a biblioteca baseado na busca
+        function filterLibrary() {
+            updateLibraryDisplay();
+        }
+
+        // Atualiza as estatísticas da biblioteca
+        function updateStats() {
+            const stats = document.getElementById('libraryStats');
+            const total = booksLibrary.length;
+            
+            if (total === 0) {
+                stats.innerHTML = '📚 Biblioteca vazia - adicione alguns livros acima';
+            } else {
+                stats.innerHTML = `📊 ${total} livro${total !== 1 ? 's' : ''} na biblioteca`;
+            }
+        }
+
+        // Atualiza a exibição dos livros selecionados
+        function updateSelectedBooksDisplay() {
+            const container = document.getElementById('selectedBooksInfo');
+            const countElement = document.getElementById('selectedCount');
+            const listElement = document.getElementById('selectedList');
+            
+            if (selectedBooks.length === 0) {
+                container.style.display = 'none';
                 return;
             }
+
+            container.style.display = 'block';
+            countElement.textContent = `✓ ${selectedBooks.length} livro${selectedBooks.length !== 1 ? 's' : ''} selecionado${selectedBooks.length !== 1 ? 's' : ''} para o resumo:`;
             
-            let bookListText = booksList.map((book, index) => 
-                `${index + 1}. "${book.title}" - ${book.author}`
-            ).join('\n');
+            const selectedBooksInfo = selectedBooks.map(id => {
+                const book = booksLibrary.find(b => b.id === id);
+                return book ? `• "${book.title}" - ${book.author}` : '';
+            }).filter(info => info).join('\n');
             
+            listElement.textContent = selectedBooksInfo;
+        }
+
+        // Atualiza o estado do botão de gerar
+        function updateGenerateButton() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = selectedBooks.length === 0;
+        }
+
+        // Gera o prompt para os livros selecionados
+        function generatePrompt() {
+            if (selectedBooks.length === 0) {
+                alert('Selecione pelo menos um livro para gerar o resumo.');
+                return;
+            }
+
+            const selectedBooksInfo = selectedBooks.map((id, index) => {
+                const book = booksLibrary.find(b => b.id === id);
+                return book ? `${index + 1}. "${book.title}" - ${book.author}` : '';
+            }).filter(info => info).join('\n');
+
             const promptText = `Crie um documento estruturado com resumos dos seguintes livros:
 
 **LISTA DE LIVROS:**
-${bookListText}
+${selectedBooksInfo}
 
 **ESTRUTURA DO DOCUMENTO:**
 - **ÍNDICE** com links navegáveis para cada livro
@@ -329,21 +643,47 @@ ${bookListText}
 - Para quem seria mais útil
 
 Formate como documento PDF navegável com seções claras para cada livro. Mantenha cada seção clara, objetiva e acessível. Use exemplos dos livros quando necessário.`;
-            
-            copyToClipboard(promptText, '📋 Prompt copiado com sucesso!');
+
+            navigator.clipboard.writeText(promptText).then(function() {
+                showSuccess();
+            }).catch(function(err) {
+                // Fallback para navegadores que não suportam clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = promptText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showSuccess();
+            });
         }
-        
+
+        // Mostra mensagem de sucesso
+        function showSuccess() {
+            const successMsg = document.getElementById('successMsg');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+
         // Event listeners para navegação por teclado
         document.getElementById('livro').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('autor').focus();
             }
         });
-        
+
         document.getElementById('autor').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addBook();
             }
+        });
+
+        // Inicializa a aplicação
+        window.addEventListener('load', function() {
+            loadLibrary();
+            document.getElementById('livro').focus();
         });
     </script>
 </body>
