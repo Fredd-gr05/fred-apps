@@ -126,6 +126,11 @@
             background: #218838;
         }
         
+        .add-btn:active {
+            transform: translateY(0);
+            background: #1e7e34;
+        }
+        
         .library-controls {
             display: flex;
             gap: 10px;
@@ -160,23 +165,11 @@
         }
         
         .control-btn.export {
-            background: #fd7e14;
+            background: #17a2b8;
         }
         
         .control-btn.export:hover {
-            background: #e8650e;
-        }
-        
-        .control-btn.import {
-            background: #20c997;
-        }
-        
-        .control-btn.import:hover {
-            background: #1ba085;
-        }
-        
-        .file-input {
-            display: none;
+            background: #138496;
         }
         
         .book-library {
@@ -323,14 +316,22 @@
             overflow-y: auto;
         }
 
-        .backup-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
+        .import-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .file-input {
+            margin-top: 10px;
+        }
+
+        .file-input input[type="file"] {
             padding: 10px;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: #856404;
+            background: white;
+            border: 1px solid #dee2e6;
         }
 
         @media (max-width: 480px) {
@@ -369,7 +370,7 @@
                 <label for="autor">Autor:</label>
                 <input type="text" id="autor" placeholder="Ex: George Orwell">
             </div>
-            <button class="add-btn" onclick="addBook()">Adicionar à Biblioteca</button>
+            <button class="add-btn" id="addButton">Adicionar à Biblioteca</button>
         </div>
 
         <!-- Seção: Biblioteca de Livros -->
@@ -378,23 +379,24 @@
                 📖 Biblioteca de Livros
             </div>
             
-            <div class="backup-info">
-                💡 <strong>Dica:</strong> Use "Exportar" para fazer backup da sua biblioteca. O arquivo pode ser importado depois em qualquer dispositivo!
-            </div>
-            
             <div class="search-box">
                 <input type="text" id="searchBox" placeholder="🔍 Buscar livros..." onkeyup="filterLibrary()">
             </div>
 
             <div class="library-controls">
                 <button class="control-btn" onclick="selectAll()">Marcar Todos</button>
-                <button class="control-btn secondary" onclick="deselectAll()">Desmarcar</button>
-                <button class="control-btn export" onclick="exportLibrary()">💾 Exportar</button>
-                <button class="control-btn import" onclick="document.getElementById('importFile').click()">📂 Importar</button>
-                <button class="control-btn secondary" onclick="clearLibrary()">Limpar</button>
+                <button class="control-btn secondary" onclick="deselectAll()">Desmarcar Todos</button>
+                <button class="control-btn export" onclick="exportLibrary()">📥 Exportar</button>
+                <button class="control-btn secondary" onclick="clearLibrary()">Limpar Biblioteca</button>
             </div>
 
-            <input type="file" id="importFile" class="file-input" accept=".json" onchange="importLibrary(event)">
+            <!-- Seção de Import -->
+            <div class="import-section">
+                <strong>📤 Importar Biblioteca:</strong>
+                <div class="file-input">
+                    <input type="file" id="importFile" accept=".json" onchange="importLibrary(event)">
+                </div>
+            </div>
 
             <div id="libraryStats" class="stats"></div>
 
@@ -422,56 +424,30 @@
     </div>
 
     <script>
+        // Variáveis globais
         let booksLibrary = [];
         let selectedBooks = [];
 
-        // Carrega a biblioteca do localStorage ao iniciar
-        function loadLibrary() {
-            try {
-                const saved = localStorage.getItem('booksLibrary');
-                if (saved) {
-                    booksLibrary = JSON.parse(saved);
-                    console.log('Biblioteca carregada:', booksLibrary.length, 'livros');
-                } else {
-                    console.log('Nenhuma biblioteca salva encontrada');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar biblioteca:', error);
-                booksLibrary = [];
-            }
-            updateLibraryDisplay();
-            updateStats();
-        }
-
-        // Salva a biblioteca no localStorage
-        function saveLibrary() {
-            try {
-                const data = JSON.stringify(booksLibrary);
-                localStorage.setItem('booksLibrary', data);
-                console.log('Biblioteca salva com sucesso:', booksLibrary.length, 'livros');
-                return true;
-            } catch (error) {
-                console.error('Erro ao salvar biblioteca:', error);
-                alert('Erro ao salvar a biblioteca. Use a função "Exportar" como backup!');
-                return false;
-            }
-        }
-
-        // Adiciona um novo livro à biblioteca
+        // ===== FUNÇÃO PRINCIPAL: ADICIONAR LIVRO =====
         function addBook() {
-            const livro = document.getElementById('livro').value.trim();
-            const autor = document.getElementById('autor').value.trim();
+            console.log('Função addBook chamada'); // Debug
             
-            console.log('Tentando adicionar livro:', livro, 'por', autor);
+            const livroInput = document.getElementById('livro');
+            const autorInput = document.getElementById('autor');
+            const livro = livroInput.value.trim();
+            const autor = autorInput.value.trim();
             
+            console.log('Livro:', livro, 'Autor:', autor); // Debug
+            
+            // Validação básica
             if (!livro || !autor) {
                 alert('Por favor, preencha o nome do livro e do autor.');
                 return;
             }
 
-            // Verifica se o livro já existe na biblioteca
-            const exists = booksLibrary.some(book =>
-                book.title.toLowerCase() === livro.toLowerCase() &&
+            // Verifica se já existe (case insensitive)
+            const exists = booksLibrary.some(book => 
+                book.title.toLowerCase() === livro.toLowerCase() && 
                 book.author.toLowerCase() === autor.toLowerCase()
             );
 
@@ -480,59 +456,91 @@
                 return;
             }
 
-            // Adiciona o novo livro
+            // Cria o novo livro
             const newBook = {
-                id: Date.now(),
+                id: Date.now(), // ID único baseado em timestamp
                 title: livro,
                 author: autor,
                 dateAdded: new Date().toISOString()
             };
 
+            console.log('Novo livro criado:', newBook); // Debug
+
+            // Adiciona à biblioteca
             booksLibrary.push(newBook);
-            console.log('Livro adicionado:', newBook);
-            
-            // Salva a biblioteca
+            console.log('Biblioteca atualizada:', booksLibrary); // Debug
+
+            // Salva e atualiza interface
             saveLibrary();
-
-            // Limpa os campos
-            document.getElementById('livro').value = '';
-            document.getElementById('autor').value = '';
-
             updateLibraryDisplay();
             updateStats();
 
-            // Mostra mensagem de sucesso
-            showAddSuccess(newBook.title);
+            // Limpa os campos
+            livroInput.value = '';
+            autorInput.value = '';
 
-            // Foca no primeiro campo para adicionar outro livro
-            document.getElementById('livro').focus();
+            // Foca no primeiro campo
+            livroInput.focus();
+
+            console.log('Livro adicionado com sucesso!'); // Debug
         }
 
-        // Mostra mensagem de sucesso ao adicionar livro
-        function showAddSuccess(title) {
-            const successMsg = document.getElementById('successMsg');
-            successMsg.innerHTML = `✅ "${title}" adicionado à biblioteca!`;
-            successMsg.style.display = 'block';
-            setTimeout(() => {
-                successMsg.style.display = 'none';
-            }, 2000);
+        // ===== SISTEMA DE PERSISTÊNCIA =====
+        function saveLibrary() {
+            try {
+                const dataString = JSON.stringify(booksLibrary);
+                localStorage.setItem('booksLibrary', dataString);
+                localStorage.setItem('booksLibrary_backup', dataString);
+                localStorage.setItem('booksLibrary_timestamp', Date.now().toString());
+                console.log('Biblioteca salva com sucesso'); // Debug
+            } catch (error) {
+                console.error('Erro ao salvar biblioteca:', error);
+                alert('Erro ao salvar a biblioteca. Considere exportar seus dados como backup.');
+            }
         }
 
-        // EXPORTAR BIBLIOTECA
+        function loadLibrary() {
+            try {
+                const saved = localStorage.getItem('booksLibrary');
+                if (saved) {
+                    booksLibrary = JSON.parse(saved);
+                    console.log('Biblioteca carregada:', booksLibrary); // Debug
+                } else {
+                    console.log('Nenhuma biblioteca salva encontrada'); // Debug
+                }
+            } catch (error) {
+                console.error('Erro ao carregar biblioteca:', error);
+                // Tenta carregar backup
+                try {
+                    const backup = localStorage.getItem('booksLibrary_backup');
+                    if (backup) {
+                        booksLibrary = JSON.parse(backup);
+                        console.log('Biblioteca carregada do backup'); // Debug
+                    }
+                } catch (backupError) {
+                    console.error('Erro ao carregar backup:', backupError);
+                    booksLibrary = [];
+                }
+            }
+            updateLibraryDisplay();
+            updateStats();
+        }
+
+        // ===== EXPORTAR/IMPORTAR =====
         function exportLibrary() {
             if (booksLibrary.length === 0) {
                 alert('Biblioteca vazia! Adicione alguns livros primeiro.');
                 return;
             }
 
-            const dataToExport = {
+            const data = {
                 library: booksLibrary,
                 exportDate: new Date().toISOString(),
-                totalBooks: booksLibrary.length
+                version: "1.0"
             };
 
-            const dataStr = JSON.stringify(dataToExport, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
+            const dataString = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
@@ -543,16 +551,9 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            // Mostra mensagem de sucesso
-            const successMsg = document.getElementById('successMsg');
-            successMsg.innerHTML = `💾 Backup exportado com sucesso! (${booksLibrary.length} livros)`;
-            successMsg.style.display = 'block';
-            setTimeout(() => {
-                successMsg.style.display = 'none';
-            }, 3000);
+            alert('Biblioteca exportada com sucesso!');
         }
 
-        // IMPORTAR BIBLIOTECA
         function importLibrary(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -560,79 +561,44 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(e.target.result);
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // Verifica se é o formato correto
                     let importedBooks = [];
-
-                    // Verifica se é o novo formato ou antigo
-                    if (imported.library && Array.isArray(imported.library)) {
-                        importedBooks = imported.library;
-                    } else if (Array.isArray(imported)) {
-                        importedBooks = imported;
+                    if (importData.library && Array.isArray(importData.library)) {
+                        importedBooks = importData.library;
+                    } else if (Array.isArray(importData)) {
+                        importedBooks = importData;
                     } else {
-                        throw new Error('Formato inválido');
+                        throw new Error('Formato de arquivo inválido');
                     }
 
-                    if (importedBooks.length === 0) {
-                        alert('Arquivo não contém livros válidos!');
-                        return;
-                    }
-
-                    // Pergunta se quer substituir ou mesclar
-                    const action = confirm(
-                        `Encontrados ${importedBooks.length} livros no arquivo.\n\n` +
-                        'Clique "OK" para SUBSTITUIR a biblioteca atual\n' +
-                        'Clique "Cancelar" para MESCLAR com os livros existentes'
-                    );
-
-                    if (action) {
-                        // Substituir
+                    // Confirma a importação
+                    const confirmMsg = `Importar ${importedBooks.length} livros?\n\nIsso ${booksLibrary.length > 0 ? 'substituirá' : 'criará'} sua biblioteca atual.`;
+                    
+                    if (confirm(confirmMsg)) {
                         booksLibrary = importedBooks;
-                    } else {
-                        // Mesclar (evita duplicatas)
-                        let added = 0;
-                        importedBooks.forEach(importedBook => {
-                            const exists = booksLibrary.some(book =>
-                                book.title.toLowerCase() === importedBook.title.toLowerCase() &&
-                                book.author.toLowerCase() === importedBook.author.toLowerCase()
-                            );
-                            if (!exists) {
-                                booksLibrary.push({
-                                    ...importedBook,
-                                    id: Date.now() + Math.random() // Garante ID único
-                                });
-                                added++;
-                            }
-                        });
-                        alert(`${added} novos livros adicionados (duplicatas ignoradas)`);
+                        selectedBooks = [];
+                        saveLibrary();
+                        updateLibraryDisplay();
+                        updateStats();
+                        updateSelectedBooksDisplay();
+                        updateGenerateButton();
+                        alert('Biblioteca importada com sucesso!');
                     }
-
-                    selectedBooks = [];
-                    saveLibrary();
-                    updateLibraryDisplay();
-                    updateStats();
-                    updateSelectedBooksDisplay();
-                    updateGenerateButton();
-
-                    // Mostra mensagem de sucesso
-                    const successMsg = document.getElementById('successMsg');
-                    successMsg.innerHTML = `📂 Biblioteca importada com sucesso! (${booksLibrary.length} livros total)`;
-                    successMsg.style.display = 'block';
-                    setTimeout(() => {
-                        successMsg.style.display = 'none';
-                    }, 3000);
-
                 } catch (error) {
-                    console.error('Erro ao importar:', error);
-                    alert('Erro ao ler o arquivo. Verifique se é um backup válido da biblioteca.');
+                    console.error('Erro na importação:', error);
+                    alert('Erro ao importar arquivo. Verifique se é um arquivo JSON válido exportado desta aplicação.');
                 }
+                
+                // Limpa o input
+                event.target.value = '';
             };
+            
             reader.readAsText(file);
-
-            // Limpa o input para permitir importar o mesmo arquivo novamente
-            event.target.value = '';
         }
 
-        // Remove um livro da biblioteca
+        // ===== OUTRAS FUNÇÕES =====
         function removeBook(bookId) {
             if (confirm('Tem certeza que deseja remover este livro da biblioteca?')) {
                 booksLibrary = booksLibrary.filter(book => book.id !== bookId);
@@ -641,10 +607,10 @@
                 updateLibraryDisplay();
                 updateStats();
                 updateSelectedBooksDisplay();
+                updateGenerateButton();
             }
         }
 
-        // Atualiza a exibição da biblioteca
         function updateLibraryDisplay() {
             const library = document.getElementById('bookLibrary');
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
@@ -658,11 +624,7 @@
             }
 
             if (filteredBooks.length === 0) {
-                if (booksLibrary.length === 0) {
-                    library.innerHTML = '<div class="empty-library">📚 Biblioteca vazia - adicione alguns livros acima</div>';
-                } else {
-                    library.innerHTML = '<div class="empty-library">🔍 Nenhum livro encontrado para a busca</div>';
-                }
+                library.innerHTML = '<div class="empty-library">📚 Nenhum livro encontrado na biblioteca</div>';
                 return;
             }
 
@@ -684,7 +646,6 @@
             }).join('');
         }
 
-        // Alterna seleção de um livro
         function toggleBookSelection(bookId) {
             if (selectedBooks.includes(bookId)) {
                 selectedBooks = selectedBooks.filter(id => id !== bookId);
@@ -696,7 +657,6 @@
             updateGenerateButton();
         }
 
-        // Seleciona todos os livros visíveis
         function selectAll() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             let filteredBooks = booksLibrary;
@@ -719,7 +679,6 @@
             updateGenerateButton();
         }
 
-        // Desmarca todos os livros
         function deselectAll() {
             selectedBooks = [];
             updateLibraryDisplay();
@@ -727,9 +686,8 @@
             updateGenerateButton();
         }
 
-        // Limpa toda a biblioteca
         function clearLibrary() {
-            if (confirm('Tem certeza que deseja limpar toda a biblioteca? Esta ação não pode ser desfeita.\n\nDica: Use "Exportar" antes para fazer backup!')) {
+            if (confirm('Tem certeza que deseja limpar toda a biblioteca? Esta ação não pode ser desfeita.\n\nRecomendamos exportar seus dados antes de continuar.')) {
                 booksLibrary = [];
                 selectedBooks = [];
                 saveLibrary();
@@ -740,12 +698,10 @@
             }
         }
 
-        // Filtra a biblioteca baseado na busca
         function filterLibrary() {
             updateLibraryDisplay();
         }
 
-        // Atualiza as estatísticas da biblioteca
         function updateStats() {
             const stats = document.getElementById('libraryStats');
             const total = booksLibrary.length;
@@ -757,7 +713,6 @@
             }
         }
 
-        // Atualiza a exibição dos livros selecionados
         function updateSelectedBooksDisplay() {
             const container = document.getElementById('selectedBooksInfo');
             const countElement = document.getElementById('selectedCount');
@@ -779,13 +734,11 @@
             listElement.textContent = selectedBooksInfo;
         }
 
-        // Atualiza o estado do botão de gerar
         function updateGenerateButton() {
             const btn = document.getElementById('generateBtn');
             btn.disabled = selectedBooks.length === 0;
         }
 
-        // Gera o prompt para os livros selecionados
         function generatePrompt() {
             if (selectedBooks.length === 0) {
                 alert('Selecione pelo menos um livro para gerar o resumo.');
@@ -837,4 +790,55 @@ Formate como documento PDF navegável com seções claras para cada livro. Mante
 
             navigator.clipboard.writeText(promptText).then(function() {
                 showSuccess();
-            }).catch(function(
+            }).catch(function(err) {
+                // Fallback para navegadores que não suportam clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = promptText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showSuccess();
+            });
+        }
+
+        function showSuccess() {
+            const successMsg = document.getElementById('successMsg');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+
+        // ===== EVENT LISTENERS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado'); // Debug
+            
+            // Carrega a biblioteca
+            loadLibrary();
+            
+            // Configura o botão de adicionar
+            const addButton = document.getElementById('addButton');
+            addButton.addEventListener('click', addBook);
+            
+            // Event listeners para navegação por teclado
+            document.getElementById('livro').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('autor').focus();
+                }
+            });
+
+            document.getElementById('autor').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addBook();
+                }
+            });
+            
+            // Foca no primeiro campo
+            document.getElementById('livro').focus();
+            
+            console.log('Inicialização completa'); // Debug
+        });
+    </script>
+</body>
+</html>
